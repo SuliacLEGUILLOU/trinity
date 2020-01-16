@@ -217,6 +217,10 @@ func (svr *TLSServer) SetKey(key string, value []byte, flags int16, expiry *time
 // GetKey returns a value for the given key in the cluster, and if that key was found
 func (svr *TLSServer) GetKey(key string) ([]byte, int16, bool) {
 	keymd5 := ch.NewMD5Key(key)
+	if svr.KVStore.IsSet(key) {
+		return svr.KVStore.Get(key)
+	}
+
 	nodes := svr.ServerNode.GetNodesFor(keymd5, 3)
 	for _, node := range nodes {
 		if node.ID == svr.ServerNode.ID {
@@ -266,6 +270,10 @@ func (svr *TLSServer) GetKey(key string) ([]byte, int16, bool) {
 // IsSet return if a key is set
 func (svr *TLSServer) IsSet(key string) bool {
 	keymd5 := ch.NewMD5Key(key)
+	if svr.KVStore.IsSet(key) {
+		return true
+	}
+
 	nodes := svr.ServerNode.GetNodesFor(keymd5, 3)
 	for _, node := range nodes {
 		if node.ID == svr.ServerNode.ID {
